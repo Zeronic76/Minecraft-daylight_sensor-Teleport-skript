@@ -1,3 +1,8 @@
+<img width="977" height="304" alt="image" src="https://github.com/user-attachments/assets/6bb9a6c7-0125-4616-9bf2-588b2d38c88d" />
+
+
+
+
 ## 🚀 Minecraft Daylight Detector Elevator (Skript)
 
 Ein leichtgewichtiges und extrem performantes Skript für Minecraft-Server (Spigot/Paper), das Tageslichtsensoren (Daylight Detectors) in voll funktionsfähige Aufzüge verwandelt. 
