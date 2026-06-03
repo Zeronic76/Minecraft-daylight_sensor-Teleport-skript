@@ -1,0 +1,84 @@
+options:
+  max-search: 60 # Maximale Reichweite (Etagenabstand) in Blöcken
+
+on join:
+  send "&e[ele] Skript geladen" to player
+
+# Nach UNTEN (Sneaken)
+on sneak toggle:
+  if player is not sneaking:
+    set {_current_block} to block at player
+    
+    if {_current_block} is air:
+      set {_current_block} to block 1 block below player
+      
+    if {_current_block} is daylight detector:
+      set {_search_loc} to location of {_current_block}
+      set {_found} to false
+      set {_i} to 1
+      
+      while {_i} <= {@max-search}:
+        remove 1 from y-coordinate of {_search_loc}
+        
+        if y-coordinate of {_search_loc} < -64:
+          set {_i} to {@max-search} + 1
+        
+        if block at {_search_loc} is daylight detector:
+          set {_found} to true
+          set {_target} to {_search_loc}
+          set {_i} to {@max-search} + 1
+        else:
+          add 1 to {_i}
+      
+      if {_found} is true:
+        add 1 to y-coordinate of {_target}
+        set x-coordinate of {_target} to x-coordinate of {_target} + 0.5
+        set z-coordinate of {_target} to z-coordinate of {_target} + 0.5
+        
+        teleport player to {_target}
+        send "&aAufzug: nach unten." to player
+      else:
+        send "&cAufzug: Keine tiefere Etage gefunden!" to player
+
+# Nach OBEN (Springen)
+on jump:
+  set {_b1} to block 1 block below player
+  set {_b2} to block 2 blocks below player
+  set {_b_exact} to block at player
+
+  # Bestimme, auf welcher Ebene der Sensor liegt
+  set {_current_block} to air
+  if {_b1} is daylight detector:
+    set {_current_block} to {_b1}
+  else if {_b2} is daylight detector:
+    set {_current_block} to {_b2}
+  else if {_b_exact} is daylight detector:
+    set {_current_block} to {_b_exact}
+  
+  if {_current_block} is daylight detector:
+    set {_search_loc} to location of {_current_block}
+    set {_found} to false
+    set {_i} to 1
+    
+    while {_i} <= {@max-search}:
+      add 1 to y-coordinate of {_search_loc}
+      
+      if y-coordinate of {_search_loc} > 320:
+        set {_i} to {@max-search} + 1
+        
+      if block at {_search_loc} is daylight detector:
+        set {_found} to true
+        set {_target} to {_search_loc}
+        set {_i} to {@max-search} + 1
+      else:
+        add 1 to {_i}
+        
+    if {_found} is true:
+      add 1 to y-coordinate of {_target}
+      set x-coordinate of {_target} to x-coordinate of {_target} + 0.5
+      set z-coordinate of {_target} to z-coordinate of {_target} + 0.5
+      
+      teleport player to {_target}
+      send "&aAufzug: nach oben." to player
+    else:
+      send "&cAufzug: Keine höhere Etage gefunden!" to player
