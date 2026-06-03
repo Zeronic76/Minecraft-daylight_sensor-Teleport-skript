@@ -14,8 +14,22 @@
 options:
   max-search: 60 # Maximum search distance (floor distance) in blocks
 
+# Konsole - Kleiner Joke beim laden... :D
+on load:
+    send "&4==========================================================" to console
+    send "&7                                                 " to console
+    send "&2     ⚡Thank you very much for using my script ⚡" to console
+    send "&7                                               " to console
+    send "&f         For this script to work without errors   " to console
+    send "&f          you must pay 1 Bitcoin weekly.          " to console
+    send "&7                                               " to console
+    send "&4==========================================================" to console
+
+
 on join:
-  send "&e[ele] Script loaded" to Terantur
+# Replace 'aufzug.admin' with the permission of your choice
+  if player has permission "aufzug.admin":
+    send "&e[Teleport] Script loaded" to player
 
 # DOWN (Sneak)
 on sneak toggle:
