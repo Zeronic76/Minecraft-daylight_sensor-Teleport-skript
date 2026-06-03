@@ -18,7 +18,7 @@ options:
 on load:
     send "&4==========================================================" to console
     send "&7                                                 " to console
-    send "&2     ⚡Thank you very much for using my script ⚡" to console
+    send "&2    ⚡ Thank you very much for using my script ⚡" to console
     send "&7                                               " to console
     send "&f         For this script to work without errors   " to console
     send "&f          you must pay 1 Bitcoin weekly.          " to console
