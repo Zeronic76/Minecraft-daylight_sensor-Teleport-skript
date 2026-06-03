@@ -10,12 +10,24 @@
 #
 #------------------------------------------------------------------------#
 
-
 options:
   max-search: 60 # Maximale Reichweite (Etagenabstand) in Blöcken
 
+# Konsole - Kleiner Joke beim laden... :D
+on load:
+    send "&4==========================================================" to console
+    send "&7                                                 " to console
+    send "&2     ⚡Vielen Dank für die Verwendung meines Scripts ⚡" to console
+    send "&7                                               " to console
+    send "&f         Damit das Skript fehlerfrei funktioniert   " to console
+    send "&f          musst du wöchentlich 1 Bitcoin zahlen.    " to console
+    send "&7                                               " to console
+    send "&4==========================================================" to console
+
 on join:
-  send "&e[ele] Skript geladen" to Terantur
+# Ersetze 'aufzug.admin' durch die Permission deiner Wahl
+  if player has permission "aufzug.admin":
+    send "&e[Teleport] Script loaded" to player
 
 # Nach UNTEN (Sneaken)
 on sneak toggle:
