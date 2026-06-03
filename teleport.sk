@@ -1,0 +1,207 @@
+#------------------------------------------------------------------------------#
+#
+# Project: daylight sensor - Teleport
+#          (Multilanguage + Cooldown + Stable) MC 1.21.4
+#
+# (c) 2026 Jörg Stöhrmann / Zeronic76
+#
+#   This script is free software: you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation.
+#
+#------------------------------------------------------------------------------#
+
+options:
+  max-search: 60
+  cooldown: 0.4 seconds
+
+# ---------------------------------------------------------
+# Sprachvariablen (statisch)
+# ---------------------------------------------------------
+
+variables:
+    # Deutsch
+    {lang::de::script_loaded} = "[Teleport] Skript geladen"
+    {lang::de::elevator_down} = "Aufzug: nach unten."
+    {lang::de::elevator_down_not_found} = "Aufzug: Keine tiefere Etage gefunden!"
+    {lang::de::elevator_up} = "Aufzug: nach oben."
+    {lang::de::elevator_up_not_found} = "Aufzug: Keine höhere Etage gefunden!"
+
+    # Englisch
+    {lang::en::script_loaded} = "[Teleport] Script loaded"
+    {lang::en::elevator_down} = "Elevator: going down."
+    {lang::en::elevator_down_not_found} = "Elevator: No lower floor found!"
+    {lang::en::elevator_up} = "Elevator: going up."
+    {lang::en::elevator_up_not_found} = "Elevator: No higher floor found!"
+
+# ---------------------------------------------------------
+# Cooldown-Funktion (die bleibt, die macht keinen Ärger)
+# ---------------------------------------------------------
+
+function canUse(p: player) :: boolean:
+    if {cooldown::%{_p}%} is set:
+        if difference between now and {cooldown::%{_p}%} < {@cooldown}:
+            return false
+    set {cooldown::%{_p}%} to now
+    return true
+
+# ---------------------------------------------------------
+# Konsole
+# ---------------------------------------------------------
+
+on load:
+    # Fallback: Standard auf Deutsch
+    set {lang::active::script_loaded} to {lang::de::script_loaded}
+    set {lang::active::elevator_down} to {lang::de::elevator_down}
+    set {lang::active::elevator_down_not_found} to {lang::de::elevator_down_not_found}
+    set {lang::active::elevator_up} to {lang::de::elevator_up}
+    set {lang::active::elevator_up_not_found} to {lang::de::elevator_up_not_found}
+
+    send "&4==========================================================" to console
+    send "&7                                                 " to console
+    send "&2    ⚡ Thank you very much for using my script ⚡" to console
+    send "&7                                               " to console
+    send "&f         For this script to work without errors   " to console
+    send "&f             you must pay 1 Bitcoin weekly.    " to console
+    send "&7                                               " to console
+    send "&4==========================================================" to console
+
+# ---------------------------------------------------------
+# Join: Sprache pro Spieler setzen
+# ---------------------------------------------------------
+
+on join:
+    set {_loc} to locale of player
+    set {_short} to first 2 characters of {_loc}
+
+    if {_short} is "de":
+        set {lang::active::script_loaded} to {lang::de::script_loaded}
+        set {lang::active::elevator_down} to {lang::de::elevator_down}
+        set {lang::active::elevator_down_not_found} to {lang::de::elevator_down_not_found}
+        set {lang::active::elevator_up} to {lang::de::elevator_up}
+        set {lang::active::elevator_up_not_found} to {lang::de::elevator_up_not_found}
+    else:
+        set {lang::active::script_loaded} to {lang::en::script_loaded}
+        set {lang::active::elevator_down} to {lang::en::elevator_down}
+        set {lang::active::elevator_down_not_found} to {lang::en::elevator_down_not_found}
+        set {lang::active::elevator_up} to {lang::en::elevator_up}
+        set {lang::active::elevator_up_not_found} to {lang::en::elevator_up_not_found}
+
+    if player has permission "aufzug.admin":
+      send "&e%{lang::active::script_loaded}%" to player
+
+# ---------------------------------------------------------
+# Sneak = runter
+# ---------------------------------------------------------
+
+on sneak toggle:
+    if player is sneaking:
+        stop
+
+    if canUse(player) is false:
+        stop
+
+    # Sprache pro Event anhand Spieler-Locale setzen
+    set {_loc} to locale of player
+    set {_short} to first 2 characters of {_loc}
+
+    if {_short} is "de":
+        set {lang::active::elevator_down} to {lang::de::elevator_down}
+        set {lang::active::elevator_down_not_found} to {lang::de::elevator_down_not_found}
+    else:
+        set {lang::active::elevator_down} to {lang::en::elevator_down}
+        set {lang::active::elevator_down_not_found} to {lang::en::elevator_down_not_found}
+
+    set {_current_block} to block at player
+    if {_current_block} is air:
+        set {_current_block} to block 1 block below player
+
+    if {_current_block} is daylight detector:
+
+        set {_search_loc} to location of {_current_block}
+        set {_found} to false
+        set {_i} to 1
+
+        while {_i} <= {@max-search}:
+            remove 1 from y-coordinate of {_search_loc}
+
+            if y-coordinate of {_search_loc} < -64:
+                set {_i} to {@max-search} + 1
+
+            if block at {_search_loc} is daylight detector:
+                set {_found} to true
+                set {_target} to {_search_loc}
+                set {_i} to {@max-search} + 1
+            else:
+                add 1 to {_i}
+
+        if {_found} is true:
+            set {_tx} to floor(x-coordinate of {_target}) + 0.5
+            set {_ty} to floor(y-coordinate of {_target}) + 1.0
+            set {_tz} to floor(z-coordinate of {_target}) + 0.5
+            set {_final_loc} to location({_tx}, {_ty}, {_tz}, world of {_target}, yaw of player, pitch of player)
+
+            teleport player to {_final_loc}
+            send "&a%{lang::active::elevator_down}%" to player
+        else:
+            send "&c%{lang::active::elevator_down_not_found}%" to player
+
+# ---------------------------------------------------------
+# Jump = hoch
+# ---------------------------------------------------------
+
+on jump:
+
+    if canUse(player) is false:
+        stop
+
+    # Sprache pro Event anhand Spieler-Locale setzen
+    set {_loc} to locale of player
+    set {_short} to first 2 characters of {_loc}
+
+    if {_short} is "de":
+        set {lang::active::elevator_up} to {lang::de::elevator_up}
+        set {lang::active::elevator_up_not_found} to {lang::de::elevator_up_not_found}
+    else:
+        set {lang::active::elevator_up} to {lang::en::elevator_up}
+        set {lang::active::elevator_up_not_found} to {lang::en::elevator_up_not_found}
+
+    set {_current_block} to block at player
+
+    set {_b1} to block 1 block below player
+    set {_b2} to block 2 blocks below player
+
+    if {_b1} is daylight detector:
+        set {_current_block} to {_b1}
+    else if {_b2} is daylight detector:
+        set {_current_block} to {_b2}
+
+    if {_current_block} is daylight detector:
+
+        set {_search_loc} to location of {_current_block}
+        set {_found} to false
+        set {_i} to 1
+
+        while {_i} <= {@max-search}:
+            add 1 to y-coordinate of {_search_loc}
+
+            if y-coordinate of {_search_loc} > 320:
+                set {_i} to {@max-search} + 1
+
+            if block at {_search_loc} is daylight detector:
+                set {_found} to true
+                set {_target} to {_search_loc}
+                set {_i} to {@max-search} + 1
+            else:
+                add 1 to {_i}
+
+        if {_found} is true:
+            set {_tx} to floor(x-coordinate of {_target}) + 0.5
+            set {_ty} to floor(y-coordinate of {_target}) + 1.0
+            set {_tz} to floor(z-coordinate of {_target}) + 0.5
+            set {_final_loc} to location({_tx}, {_ty}, {_tz}, world of {_target}, yaw of player, pitch of player)
+
+            teleport player to {_final_loc}
+            send "&a%{lang::active::elevator_up}%" to player
+        else:
+            send "&c%{lang::active::elevator_up_not_found}%" to player
